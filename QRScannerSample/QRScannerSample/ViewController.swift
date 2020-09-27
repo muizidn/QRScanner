@@ -17,26 +17,35 @@ final class ViewController: UIViewController {
         }
     }
     @IBOutlet var flashButton: FlashButton!
-
+    
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
     }
-
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        qrScannerView.stopRunning()
+        // qrScannerView.stopRunning()
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        qrScannerView.startRunning()
+        // qrScannerView.startRunning()
     }
-
+    
+    var isRunning = false
+    
     // MARK: - Actions
     @IBAction func tapFlashButton(_ sender: UIButton) {
-        qrScannerView.setTorchActive(isOn: !sender.isSelected)
+        // qrScannerView.setTorchActive(isOn: !sender.isSelected)
+        if !isRunning {
+            qrScannerView.startRunning()
+        } else {
+            qrScannerView.stopRunning()
+        }
+        
+        isRunning.toggle()
     }
 }
 
@@ -45,7 +54,7 @@ extension ViewController: QRScannerViewDelegate {
     func qrScannerView(_ qrScannerView: QRScannerView, didFailure error: QRScannerError) {
         print(error.localizedDescription)
     }
-
+    
     func qrScannerView(_ qrScannerView: QRScannerView, didSuccess code: String) {
         if let url = URL(string: code), (url.scheme == "http" || url.scheme == "https") {
             openWeb(url: url)
@@ -53,7 +62,7 @@ extension ViewController: QRScannerViewDelegate {
             showAlert(code: code)
         }
     }
-
+    
     func qrScannerView(_ qrScannerView: QRScannerView, didChangeTorchActive isOn: Bool) {
         flashButton.isSelected = isOn
     }
@@ -66,7 +75,7 @@ private extension ViewController {
             self.qrScannerView.rescan()
         })
     }
-
+    
     func showAlert(code: String) {
         let alertController = UIAlertController(title: code, message: nil, preferredStyle: .actionSheet)
         let copyAction = UIAlertAction(title: "Copy", style: .default) { [weak self] _ in

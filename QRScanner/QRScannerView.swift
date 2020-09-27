@@ -347,9 +347,31 @@ extension QRScannerView: AVCaptureMetadataOutputObjectsDelegate {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.setTorchActive(isOn: false)
-                strongSelf.moveImageViews(qrCode: stringValue, corners: readableObject.corners)
+                strongSelf.assertQrInsideFocusImage(
+                    qrCode: stringValue,
+                    corners: readableObject.corners)
+                // strongSelf.moveImageViews(qrCode: stringValue, corners: readableObject.corners)
             }
         }
+    }
+    
+    private func assertQrInsideFocusImage(
+        qrCode: String, corners: [CGPoint]) {
+        
+        assert(Thread.isMainThread)
+        
+        let path = UIBezierPath()
+        path.move(to: corners[0])
+        corners[1..<corners.count].forEach() {
+            path.addLine(to: $0)
+        }
+        path.close()
+        
+        if focusImageView.frame.contains(path.bounds) {
+            delegate?.qrScannerView(
+                self, didSuccess: qrCode)
+        }
+        
     }
 }
 
